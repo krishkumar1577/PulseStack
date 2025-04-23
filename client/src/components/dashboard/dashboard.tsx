@@ -1,0 +1,33 @@
+"use client"
+
+import { useState } from "react"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardContent } from "@/components/dashboard-content"
+import { ActivityPage } from "@/components/pages/activity-page"
+import { GoalsPage } from "@/components/pages/goals-page"
+import { AIPlannerPage } from "@/components/pages/ai-planner-page"
+import { CalendarPage } from "@/components/pages/calendar-page"
+import { ChatWidget } from "@/components/chat-widget"
+
+export function Dashboard() {
+  const [selectedView, setSelectedView] = useState<string>("overview")
+  const [chatOpen, setChatOpen] = useState<boolean>(false)
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
+      <div className="flex flex-col flex-1">
+        <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
+
+        {selectedView === "overview" && <DashboardContent />}
+        {selectedView === "activity" && <ActivityPage />}
+        {selectedView === "goals" && <GoalsPage />}
+        {selectedView === "ai-planner" && <AIPlannerPage />}
+        {selectedView === "calendar" && <CalendarPage />}
+      </div>
+
+      <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
+    </div>
+  )
+}

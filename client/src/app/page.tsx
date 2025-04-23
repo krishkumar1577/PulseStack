@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Dashboard } from "@/components/dashboard/dashboard"
 
 export default function Home() {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <Button variant="default"> Test Button</Button>
-    </div>
-  );
+  return <Dashboard />
 }
+
+// https://www.behance.net/gallery/217343975/Ai-Task-Management-Dashboard?tracking_source=search_projects|task+management+dashboard&l=10
+// https://www.behance.net/gallery/219197249/Task-Management-Dashboard?tracking_source=search_projects|task+management+dashboard&l=0
+// https://dribbble.com/shots/23764759-WorkWise-Productivity-Dashboard
