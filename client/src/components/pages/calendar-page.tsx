@@ -260,17 +260,17 @@ export function CalendarPage() {
                   <input
                     type="text"
                     placeholder="Enter event title"
-                    className="w-full px-3 py-2 rounded-md border border-border bg-background"
+                    className="w-full px-3 py-2 rounded-md borderborder"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium mb-1 block">Date</label>
-                    <input type="date" className="w-full px-3 py-2 rounded-md border border-border bg-background" />
+                    <input type="date" className="w-full px-3 py-2 rounded-md borderborder" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Time</label>
-                    <input type="time" className="w-full px-3 py-2 rounded-md border border-border bg-background" />
+                    <input type="time" className="w-full px-3 py-2 rounded-md borderborder" />
                   </div>
                 </div>
                 <div>
@@ -292,7 +292,7 @@ export function CalendarPage() {
                   <label className="text-sm font-medium mb-1 block">Description</label>
                   <textarea
                     placeholder="Enter event description"
-                    className="w-full px-3 py-2 rounded-md border border-border bg-background h-20 resize-none"
+                    className="w-full px-3 py-2 rounded-md borderborder h-20 resize-none"
                   ></textarea>
                 </div>
                 <div>
@@ -303,7 +303,7 @@ export function CalendarPage() {
                   <input
                     type="text"
                     placeholder="Add participants"
-                    className="w-full px-3 py-2 rounded-md border border-border bg-background"
+                    className="w-full px-3 py-2 rounded-md borderborder"
                   />
                 </div>
                 <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90">

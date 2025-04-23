@@ -33,7 +33,7 @@ export function DashboardSidebar({ selectedView, setSelectedView }: DashboardSid
   }
 
   return (
-    <div className="hidden md:flex flex-col w-16 bg-card border-r border-border">
+    <div className="hidden md:flex flex-col w-16 bg-card border-rborder">
       <div className="flex justify-center py-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500">
           <span className="text-lg font-bold text-primary-foreground">PS</span>

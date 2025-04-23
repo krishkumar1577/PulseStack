@@ -43,7 +43,7 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center h-16 px-6 border-b border-border">
+      <div className="flex items-center h-16 px-6 border-bborder">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500">
@@ -92,7 +92,7 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
           >
             <Bell className="h-5 w-5" />
           </Button>
-          <Avatar className="h-8 w-8 border border-border">
+          <Avatar className="h-8 w-8 borderborder">
             <AvatarImage src="/placeholder-user.jpg" alt="User" />
             <AvatarFallback className="bg-secondary text-foreground">S</AvatarFallback>
           </Avatar>
@@ -118,7 +118,7 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
               PulseStack AI is now available. Access your activity and timeline instantly with our brand-new dashboard.
             </p>
           </div>
-          <Button variant="outline" className="text-foreground border-border hover:bg-secondary hover:text-foreground">
+          <Button variant="outline" className="text-foregroundborder hover:bg-secondary hover:text-foreground">
             View Details
           </Button>
         </div>

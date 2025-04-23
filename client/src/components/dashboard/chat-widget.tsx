@@ -95,10 +95,10 @@ export function ChatWidget({ isOpen, setIsOpen }: ChatWidgetProps) {
 
   return (
     <div
-      className={`chat-widget ${expanded ? "w-80 md:w-96" : "w-72"} bg-card border border-border rounded-lg shadow-lg flex flex-col`}
+      className={`chat-widget ${expanded ? "w-80 md:w-96" : "w-72"} bg-card border rounded-lg shadow-lg flex flex-col`}
     >
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-3 border-b border-border">
+      <div className="flex items-center justify-between p-3 border-bborder">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500">
             <MessageSquare className="h-4 w-4 text-white" />
@@ -156,7 +156,7 @@ export function ChatWidget({ isOpen, setIsOpen }: ChatWidgetProps) {
       </div>
 
       {/* Chat Input */}
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-tborder">
         <div className="flex items-center gap-2">
           <Input
             placeholder="Type a message..."

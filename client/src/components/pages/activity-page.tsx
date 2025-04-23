@@ -19,7 +19,7 @@ export function ActivityPage() {
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search activity..." className="pl-9 w-64 bg-card border-border" />
+            <Input placeholder="Search activity..." className="pl-9 w-64 bg-cardborder" />
           </div>
           <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white">
             <Zap className="mr-2 h-4 w-4" />

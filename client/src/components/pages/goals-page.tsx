@@ -59,7 +59,7 @@ export function GoalsPage() {
               progress={60}
               description="Design and develop personal portfolio website showcasing projects"
             />
-            <div className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary/70 transition-colors cursor-pointer">
+            <div className="border-2 border-dashedborder rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary/70 transition-colors cursor-pointer">
               <Plus className="h-8 w-8 mb-2" />
               <p className="font-medium">Add New Goal</p>
             </div>
@@ -96,7 +96,7 @@ export function GoalsPage() {
               completedToday={false}
               description="Plan tasks and goals for the upcoming week"
             />
-            <div className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary/70 transition-colors cursor-pointer">
+            <div className="border-2 border-dashedborder rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:text-primary/70 transition-colors cursor-pointer">
               <Plus className="h-8 w-8 mb-2" />
               <p className="font-medium">Add New Habit</p>
             </div>

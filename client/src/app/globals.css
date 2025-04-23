@@ -1,70 +1,78 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 24 95% 53%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 24 95% 97%;
-    --accent-foreground: 24 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 24 95% 53%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 225 6% 13%;
-    --foreground: 0 0% 98%;
-    --card: 228 7% 16%;
-    --card-foreground: 0 0% 98%;
-    --popover: 228 7% 16%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 24 95% 53%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 228 6% 19%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 228 6% 19%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 24 70% 33%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 228 6% 19%;
-    --input: 228 6% 19%;
-    --ring: 24 95% 53%;
-  }
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(240 10% 3.9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(240 10% 3.9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 10% 3.9%);
+  --primary: hsl(24 95% 53%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(240 4.8% 95.9%);
+  --secondary-foreground: hsl(240 5.9% 10%);
+  --muted: hsl(240 4.8% 95.9%);
+  --muted-foreground: hsl(240 3.8% 46.1%);
+  --accent: hsl(24 95% 97%);
+  --accent-foreground: hsl(24 5.9% 10%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 5.9% 90%);
+  --input: hsl(240 5.9% 90%);
+  --ring: hsl(24 95% 53%);
+  --radius: 0.5rem;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.dark {
+  --background: hsl(225 6% 13%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(228 7% 16%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(228 7% 16%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(24 95% 53%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(228 6% 19%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(228 6% 19%);
+  --muted-foreground: hsl(240 5% 64.9%);
+  --accent: hsl(24 70% 33%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(228 6% 19%);
+  --input: hsl(228 6% 19%);
+  --ring: hsl(24 95% 53%);
 }
 
-/* Custom progress bar styling */
-.progress::-webkit-progress-value {
-  background-color: hsl(var(--primary));
-  transition: width 0.2s ease;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
-.progress::-webkit-progress-bar {
-  background-color: hsl(var(--muted));
-  border-radius: 9999px;
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground;
 }
 
 /* Calendar styles */
