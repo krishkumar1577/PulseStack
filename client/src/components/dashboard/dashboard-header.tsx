@@ -10,7 +10,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ selectedView, setSelectedView }: DashboardHeaderProps) {
-  const userName = "Sajibur"
+  const userName = "krish"
   const greeting = getGreeting()
 
   function getGreeting() {

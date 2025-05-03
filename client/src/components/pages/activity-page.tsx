@@ -84,7 +84,7 @@ export function ActivityPage() {
               time="2 hours ago"
               category="Development"
               author={{
-                name: "Sajibur",
+                name: "krish",
                 avatar: "/placeholder-user.jpg",
               }}
             />
@@ -96,7 +96,7 @@ export function ActivityPage() {
               time="Yesterday, 4:30 PM"
               category="Design"
               author={{
-                name: "Sajibur",
+                name: "krish",
                 avatar: "/placeholder-user.jpg",
               }}
             />
@@ -108,7 +108,7 @@ export function ActivityPage() {
               time="2 days ago"
               category="Planning"
               author={{
-                name: "Sajibur",
+                name: "krish",
                 avatar: "/placeholder-user.jpg",
               }}
             />
@@ -120,7 +120,7 @@ export function ActivityPage() {
               time="3 days ago"
               category="Development"
               author={{
-                name: "Sajibur",
+                name: "krish",
                 avatar: "/placeholder-user.jpg",
               }}
             />
