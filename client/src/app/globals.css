@@ -105,6 +105,28 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Chat widget animations */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
 /* Chat widget styles */
 .chat-widget {
   position: fixed;
@@ -116,6 +138,8 @@ body {
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-widget.collapsed {
@@ -126,4 +150,32 @@ body {
 .chat-messages {
   height: 20rem;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: var(--secondary);
+  border-radius: 3px;
+}
+
+/* Attachment preview styles */
+.attachment-preview {
+  max-width: 200px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.attachment-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
