@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import type { JSX } from "react"
+import React, { useState } from "react"
 import { Clock, BarChart2, GitBranch, GitCommit, GitPullRequest, Search, FileText, Zap } from "lucide-react"
+import type { Activity } from "@/types/activity"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,26 +11,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { NewActivityDialog } from "./new-activity-dialog"
+import { ActivityDetailDialog } from "./activity-detail-dialog"
 import { toast } from "sonner"
-
-interface Activity {
-  id: number
-  type: "task" | "project" | "file"
-  project: string
-  title: string
-  description: string
-  time: string
-  category: string
-  author: {
-    name: string
-    avatar: string
-  }
-}
 
 export function ActivityPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [isNewActivityDialogOpen, setIsNewActivityDialogOpen] = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isExpanded, setIsExpanded] = useState(false)
+  const INITIAL_ACTIVITY_LIMIT = 5
   const [activities, setActivities] = useState<Activity[]>([
     {
       id: 1,
@@ -141,7 +134,9 @@ export function ActivityPage() {
     const matchesTab = activeTab === "all" || activity.type === activeTab.slice(0, -1)
 
     return matchesSearch && matchesTab
-  })
+  }).slice(0, isExpanded ? undefined : INITIAL_ACTIVITY_LIMIT)
+
+  const limitedActivities = isExpanded ? filteredActivities : filteredActivities.slice(0, INITIAL_ACTIVITY_LIMIT)
 
   // Search placeholder with hints
   const searchPlaceholder = "Search by text or use project:, title:, category: filters..."
@@ -206,7 +201,12 @@ export function ActivityPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Your activity across all projects</CardDescription>
+          <CardDescription>
+            {isExpanded 
+              ? `Showing all ${filteredActivities.length} activities` 
+              : `Showing ${Math.min(INITIAL_ACTIVITY_LIMIT, filteredActivities.length)} of ${filteredActivities.length} activities`
+            }
+          </CardDescription>
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-2">
             <TabsList>
               <TabsTrigger value="all">All</TabsTrigger>
@@ -218,15 +218,26 @@ export function ActivityPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {filteredActivities.map((activity) => (
-              <ActivityItem key={activity.id} {...activity} />
+            {filteredActivities.slice(0, isExpanded ? undefined : INITIAL_ACTIVITY_LIMIT).map((activity) => (
+              <ActivityItem 
+                key={activity.id} 
+                {...activity} 
+                onClick={() => {
+                  setSelectedActivity(activity)
+                  setIsDetailDialogOpen(true)
+                }}
+              />
             ))}
           </div>
         </CardContent>
         <CardFooter>
-          <Button variant="outline" className="w-full">
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
             <BarChart2 className="mr-2 h-4 w-4" />
-            View All Activity
+            {isExpanded ? "Show Less" : `View All Activities (${filteredActivities.length})`}
           </Button>
         </CardFooter>
       </Card>
@@ -293,32 +304,40 @@ export function ActivityPage() {
         onOpenChange={setIsNewActivityDialogOpen}
         onSubmit={handleNewActivity}
       />
+
+      <ActivityDetailDialog
+        activity={selectedActivity}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+      />
     </div>
   )
 }
 
-interface ActivityItemProps {
-  type: "task" | "project" | "file"
-  project: string
-  title: string
-  description: string
-  time: string
-  category: string
-  author: {
-    name: string
-    avatar: string
-  }
+interface ActivityItemProps extends Activity {
+  onClick?: () => void
 }
 
-function ActivityItem({ type, project, title, description, time, category, author }: ActivityItemProps) {
-  const icons = {
+function ActivityItem({ type, project, title, description, time, category, author, onClick }: ActivityItemProps) {
+  const icons: Record<Activity['type'], JSX.Element> = {
     task: <GitCommit className="h-4 w-4" />,
     project: <GitPullRequest className="h-4 w-4" />,
     file: <FileText className="h-4 w-4" />,
   }
 
   return (
-    <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/50">
+    <div 
+      className="flex items-start gap-4 p-4 rounded-lg bg-secondary/50 cursor-pointer transition-colors hover:bg-secondary/70"
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick?.()
+        }
+      }}
+    >
       <div className="rounded-full bg-secondary p-2">{icons[type]}</div>
       <div className="flex-1">
         <div className="flex items-center gap-2">
