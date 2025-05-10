@@ -8,9 +8,143 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { NewActivityDialog } from "./new-activity-dialog"
+import { toast } from "sonner"
+
+interface Activity {
+  id: number
+  type: "task" | "project" | "file"
+  project: string
+  title: string
+  description: string
+  time: string
+  category: string
+  author: {
+    name: string
+    avatar: string
+  }
+}
 
 export function ActivityPage() {
   const [activeTab, setActiveTab] = useState("all")
+  const [isNewActivityDialogOpen, setIsNewActivityDialogOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activities, setActivities] = useState<Activity[]>([
+    {
+      id: 1,
+      type: "task",
+      project: "PulseStack",
+      title: "Add dashboard layout components",
+      description: "Implemented responsive layout with sidebar navigation",
+      time: "2 hours ago",
+      category: "Development",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    },
+    {
+      id: 2,
+      type: "file",
+      project: "PulseStack",
+      title: "Updated design mockups",
+      description: "Added new screens for mobile view",
+      time: "Yesterday, 4:30 PM",
+      category: "Design",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    },
+    {
+      id: 3,
+      type: "project",
+      project: "PulseStack",
+      title: "Created new project milestone",
+      description: "Added Q2 goals and timeline",
+      time: "2 days ago",
+      category: "Planning",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    },
+    {
+      id: 4,
+      type: "task",
+      project: "PulseStack",
+      title: "Create AI planner component",
+      description: "Added UI for AI-powered productivity suggestions",
+      time: "3 days ago",
+      category: "Development",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    },
+  ])
+
+  const handleNewActivity = (data: {
+    type: "task" | "project" | "file"
+    project: string
+    title: string
+    description: string
+    category: string
+  }) => {
+    const newActivity: Activity = {
+      id: activities.length + 1,
+      ...data,
+      time: "Just now",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    }
+    setActivities([newActivity, ...activities])
+    toast.success("New activity added successfully!")
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+  }
+
+  const filteredActivities = activities.filter((activity) => {
+    const query = searchQuery.toLowerCase().trim()
+    
+    // Enhanced search patterns
+    const projectSearch = query.match(/^(?:project:|in:)(.+)/)
+    const titleSearch = query.match(/^(?:title:|t:)(.+)/)
+    const categorySearch = query.match(/^(?:category:|cat:)(.+)/)
+    
+    // Project-specific search
+    if (projectSearch) {
+      return activity.project.toLowerCase().includes(projectSearch[1])
+    }
+    
+    // Title-specific search
+    if (titleSearch) {
+      return activity.title.toLowerCase().includes(titleSearch[1])
+    }
+    
+    // Category-specific search
+    if (categorySearch) {
+      return activity.category.toLowerCase().includes(categorySearch[1])
+    }
+
+    // Regular search across all fields
+    const matchesSearch =
+      activity.title.toLowerCase().includes(query) ||
+      activity.description.toLowerCase().includes(query) ||
+      activity.project.toLowerCase().includes(query) ||
+      activity.category.toLowerCase().includes(query)
+
+    const matchesTab = activeTab === "all" || activity.type === activeTab.slice(0, -1)
+
+    return matchesSearch && matchesTab
+  })
+
+  // Search placeholder with hints
+  const searchPlaceholder = "Search by text or use project:, title:, category: filters..."
 
   return (
     <div className="flex-1 overflow-auto px-6 pb-6">
@@ -19,9 +153,17 @@ export function ActivityPage() {
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search activity..." className="pl-9 w-64 bg-cardborder" />
+            <Input
+              placeholder={searchPlaceholder}
+              className="pl-10 pr-10 w-[400px] bg-cardborder"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
-          <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white">
+          <Button
+            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white"
+            onClick={() => setIsNewActivityDialogOpen(true)}
+          >
             <Zap className="mr-2 h-4 w-4" />
             Track New Activity
           </Button>
@@ -76,54 +218,9 @@ export function ActivityPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <ActivityItem
-              type="task"
-              project="PulseStack"
-              title="Add dashboard layout components"
-              description="Implemented responsive layout with sidebar navigation"
-              time="2 hours ago"
-              category="Development"
-              author={{
-                name: "krish",
-                avatar: "/placeholder-user.jpg",
-              }}
-            />
-            <ActivityItem
-              type="file"
-              project="PulseStack"
-              title="Updated design mockups"
-              description="Added new screens for mobile view"
-              time="Yesterday, 4:30 PM"
-              category="Design"
-              author={{
-                name: "krish",
-                avatar: "/placeholder-user.jpg",
-              }}
-            />
-            <ActivityItem
-              type="project"
-              project="PulseStack"
-              title="Created new project milestone"
-              description="Added Q2 goals and timeline"
-              time="2 days ago"
-              category="Planning"
-              author={{
-                name: "krish",
-                avatar: "/placeholder-user.jpg",
-              }}
-            />
-            <ActivityItem
-              type="task"
-              project="PulseStack"
-              title="Create AI planner component"
-              description="Added UI for AI-powered productivity suggestions"
-              time="3 days ago"
-              category="Development"
-              author={{
-                name: "krish",
-                avatar: "/placeholder-user.jpg",
-              }}
-            />
+            {filteredActivities.map((activity) => (
+              <ActivityItem key={activity.id} {...activity} />
+            ))}
           </div>
         </CardContent>
         <CardFooter>
@@ -190,6 +287,12 @@ export function ActivityPage() {
           </CardContent>
         </Card>
       </div>
+
+      <NewActivityDialog
+        open={isNewActivityDialogOpen}
+        onOpenChange={setIsNewActivityDialogOpen}
+        onSubmit={handleNewActivity}
+      />
     </div>
   )
 }
