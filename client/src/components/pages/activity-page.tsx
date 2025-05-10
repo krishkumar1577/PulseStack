@@ -148,7 +148,7 @@ export function ActivityPage() {
 
   return (
     <div className="flex-1 overflow-auto px-6 pb-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 pt-2">
         <h2 className="text-2xl font-bold">Activity</h2>
         <div className="flex items-center gap-2">
           <div className="relative">
