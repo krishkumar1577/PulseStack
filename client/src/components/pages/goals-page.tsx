@@ -75,7 +75,10 @@ export function GoalsPage() {
     target: "" as HabitTarget,
     description: ""
   })
+
+  // TODO: Backend Integration - Replace with API calls
   const [goals, setGoals] = useState<Goal[]>([
+    // Sample data will be replaced with API calls
     {
       id: 1,
       title: "Complete PulseStack UI",
@@ -153,23 +156,30 @@ export function GoalsPage() {
     }
   ])
 
+  // TODO: Backend Integration - Replace localStorage with API endpoints
   useEffect(() => {
     const savedGoals = localStorage.getItem('goals')
     const savedHabits = localStorage.getItem('habits')
     if (savedGoals) setGoals(JSON.parse(savedGoals))
     if (savedHabits) setHabits(JSON.parse(savedHabits))
+    // Future: 
+    // - GET /api/goals
+    // - GET /api/habits
   }, [])
 
   useEffect(() => {
     localStorage.setItem('goals', JSON.stringify(goals))
+    // Future: PUT /api/goals
   }, [goals])
 
   useEffect(() => {
     localStorage.setItem('habits', JSON.stringify(habits))
+    // Future: PUT /api/habits
   }, [habits])
 
   const handleDeleteGoal = (goalId: number) => {
     setGoals(goals.filter(goal => goal.id !== goalId))
+    // Future: DELETE /api/goals/{goalId}
   }
 
   const handleDeleteHabit = (habitId: number) => {
