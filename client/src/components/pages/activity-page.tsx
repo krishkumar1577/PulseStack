@@ -2,7 +2,7 @@
 
 import type { JSX } from "react"
 import React, { useState } from "react"
-import { Clock, BarChart2, GitBranch, GitCommit, GitPullRequest, Search, FileText, Zap } from "lucide-react"
+import { Clock, BarChart2, GitBranch, GitCommit, GitPullRequest, FileText, Zap, Check, CircleDot, Search } from "lucide-react"
 import type { Activity } from "@/types/activity"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { NewActivityDialog } from "./new-activity-dialog"
-import { ActivityDetailDialog } from "./activity-detail-dialog"
+import { NewActivityDialog } from "../dashboard/new-activity-dialog"
+import { ActivityDetailDialog } from "../dashboard/activity-detail-dialog"
 import { toast } from "sonner"
 
 export function ActivityPage() {
@@ -31,6 +31,8 @@ export function ActivityPage() {
       description: "Implemented responsive layout with sidebar navigation",
       time: "2 hours ago",
       category: "Development",
+      status: "completed",
+      completedAt: "2025-05-11T10:00:00Z",
       author: {
         name: "krish",
         avatar: "/placeholder-user.jpg",
@@ -44,6 +46,8 @@ export function ActivityPage() {
       description: "Added new screens for mobile view",
       time: "Yesterday, 4:30 PM",
       category: "Design",
+      status: "completed",
+      completedAt: "2025-05-10T16:30:00Z",
       author: {
         name: "krish",
         avatar: "/placeholder-user.jpg",
@@ -57,6 +61,7 @@ export function ActivityPage() {
       description: "Added Q2 goals and timeline",
       time: "2 days ago",
       category: "Planning",
+      status: "in-progress",
       author: {
         name: "krish",
         avatar: "/placeholder-user.jpg",
@@ -70,6 +75,7 @@ export function ActivityPage() {
       description: "Added UI for AI-powered productivity suggestions",
       time: "3 days ago",
       category: "Development",
+      status: "in-progress",
       author: {
         name: "krish",
         avatar: "/placeholder-user.jpg",
@@ -88,6 +94,18 @@ export function ActivityPage() {
       id: activities.length + 1,
       ...data,
       time: "Just now",
+      status: "in-progress",
+      history: [
+        {
+          id: 1,
+          action: "Activity created",
+          timestamp: new Date().toISOString(),
+          user: {
+            name: "krish",
+            avatar: "/placeholder-user.jpg",
+          }
+        }
+      ],
       author: {
         name: "krish",
         avatar: "/placeholder-user.jpg",
@@ -97,9 +115,85 @@ export function ActivityPage() {
     toast.success("New activity added successfully!")
   }
 
+  const toggleActivityCompletion = (activityId: number) => {
+    setActivities(activities.map(activity => {
+      if (activity.id === activityId) {
+        const isCompleting = activity.status !== "completed";
+        const newStatus = isCompleting ? "completed" : "in-progress";
+        
+        // Create an action message
+        const actionMsg = isCompleting ? "completed" : "marked in-progress";
+        toast.success(`Activity ${actionMsg} successfully!`);
+        
+        return {
+          ...activity,
+          status: newStatus,
+          completedAt: isCompleting ? new Date().toISOString() : undefined,
+          history: [
+            ...(activity.history || []),
+            {
+              id: (activity.history?.length || 0) + 1,
+              action: `Status changed to ${newStatus}`,
+              timestamp: new Date().toISOString(),
+              user: activity.author
+            }
+          ]
+        };
+      }
+      return activity;
+    }));
+  };
+
   const handleSearch = (query: string) => {
     setSearchQuery(query)
   }
+
+  const calculateStats = () => {
+    const totalActivities = activities.length;
+    
+    const completedTasks = activities.filter(
+      activity => activity.type === "task" && activity.status === "completed"
+    ).length;
+    
+    const completedTasksThisWeek = activities.filter(activity => 
+      activity.type === "task" && 
+      activity.status === "completed" &&
+      activity.completedAt && 
+      new Date(activity.completedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    ).length;
+
+    // Get unique active projects (not completed)
+    const activeProjects = new Set(
+      activities
+        .filter(activity => activity.status !== "completed")
+        .map(activity => activity.project)
+    ).size;
+
+    // Count projects updated today
+    const projectsUpdatedToday = new Set(
+      activities
+        .filter(activity => 
+          activity.time.includes("hours ago") || 
+          activity.time.includes("Just now"))
+        .map(activity => activity.project)
+    ).size;
+
+    const activitiesLastWeek = activities.filter(
+      activity => activity.time.includes("days ago") && 
+      parseInt(activity.time) <= 7
+    ).length;
+
+    return {
+      totalActivities,
+      totalActivitiesChange: activitiesLastWeek,
+      completedTasks,
+      completedTasksThisWeek,
+      activeProjects,
+      projectsUpdatedToday
+    };
+  };
+
+  const stats = calculateStats();
 
   const filteredActivities = activities.filter((activity) => {
     const query = searchQuery.toLowerCase().trim()
@@ -172,8 +266,8 @@ export function ActivityPage() {
             <BarChart2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">248</div>
-            <p className="text-xs text-muted-foreground">+32 from last week</p>
+            <div className="text-2xl font-bold">{stats.totalActivities}</div>
+            <p className="text-xs text-muted-foreground">+{stats.totalActivitiesChange} from last week</p>
           </CardContent>
         </Card>
         <Card>
@@ -182,8 +276,8 @@ export function ActivityPage() {
             <GitPullRequest className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground">12 this week</p>
+            <div className="text-2xl font-bold">{stats.completedTasks}</div>
+            <p className="text-xs text-muted-foreground">{stats.completedTasksThisWeek} this week</p>
           </CardContent>
         </Card>
         <Card>
@@ -192,8 +286,8 @@ export function ActivityPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">3 updated today</p>
+            <div className="text-2xl font-bold">{stats.activeProjects}</div>
+            <p className="text-xs text-muted-foreground">{stats.projectsUpdatedToday} updated today</p>
           </CardContent>
         </Card>
       </div>
@@ -309,6 +403,7 @@ export function ActivityPage() {
         activity={selectedActivity}
         open={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
+        onStatusChange={toggleActivityCompletion}
       />
     </div>
   )
@@ -318,12 +413,25 @@ interface ActivityItemProps extends Activity {
   onClick?: () => void
 }
 
-function ActivityItem({ type, project, title, description, time, category, author, onClick }: ActivityItemProps) {
+function ActivityItem({ type, project, title, description, time, category, status, author, onClick }: ActivityItemProps) {
   const icons: Record<Activity['type'], JSX.Element> = {
     task: <GitCommit className="h-4 w-4" />,
     project: <GitPullRequest className="h-4 w-4" />,
     file: <FileText className="h-4 w-4" />,
   }
+
+  const getStatusColor = (status: string | undefined) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/10 text-green-500 border-green-500/20"
+      case "in-progress":
+        return "bg-orange-500/10 text-orange-500 border-orange-500/20"
+      default:
+        return "bg-gray-500/10 text-gray-500 border-gray-500/20"
+    }
+  }
+
+  const StatusIcon = status === "completed" ? Check : CircleDot;
 
   return (
     <div 
@@ -340,12 +448,18 @@ function ActivityItem({ type, project, title, description, time, category, autho
     >
       <div className="rounded-full bg-secondary p-2">{icons[type]}</div>
       <div className="flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
           <span className="text-sm font-medium">{project}</span>
-          <Badge variant="outline" className="text-xs">
-            <GitBranch className="mr-1 h-3 w-3" />
-            {category}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant="outline" className={`text-xs ${getStatusColor(status)}`}>
+              <StatusIcon className="mr-1 h-3 w-3" />
+              {status}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              <GitBranch className="mr-1 h-3 w-3" />
+              {category}
+            </Badge>
+          </div>
         </div>
         <h4 className="text-base font-medium mt-1">{title}</h4>
         <p className="text-sm text-muted-foreground mt-1">{description}</p>

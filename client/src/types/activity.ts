@@ -6,6 +6,8 @@ export interface Activity {
   description: string
   time: string
   category: string
+  status?: "completed" | "in-progress" | "pending"
+  completedAt?: string
   author: {
     name: string
     avatar: string

@@ -11,16 +11,23 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, GitBranch, GitCommit, GitPullRequest, FileText } from "lucide-react"
+import { Clock, GitBranch, GitCommit, GitPullRequest, FileText, Check, CircleDot } from "lucide-react"
 import type { Activity } from "@/types/activity"
+import { Button } from "@/components/ui/button"
 
 interface ActivityDetailDialogProps {
   activity: Activity | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onStatusChange?: (activityId: number) => void
 }
 
-export function ActivityDetailDialog({ activity, open, onOpenChange }: ActivityDetailDialogProps) {
+export function ActivityDetailDialog({ 
+  activity, 
+  open, 
+  onOpenChange,
+  onStatusChange 
+}: ActivityDetailDialogProps) {
   if (!activity) return null
 
   const icons: Record<Activity['type'], JSX.Element> = {
@@ -47,6 +54,35 @@ export function ActivityDetailDialog({ activity, open, onOpenChange }: ActivityD
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* Status */}
+          <div className="border-b pb-4">
+            <h4 className="text-sm font-medium mb-2">Status</h4>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {activity.status === "completed" ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <CircleDot className="h-4 w-4 text-orange-500" />
+                )}
+                <span className="text-sm capitalize">{activity.status}</span>
+                {activity.completedAt && (
+                  <span className="text-sm text-muted-foreground">
+                    (Completed on {new Date(activity.completedAt).toLocaleDateString()})
+                  </span>
+                )}
+              </div>
+              {onStatusChange && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onStatusChange(activity.id)}
+                >
+                  {activity.status === "completed" ? "Mark In Progress" : "Mark Complete"}
+                </Button>
+              )}
+            </div>
+          </div>
+
           {/* Project Association */}
           <div className="border-b pb-4">
             <h4 className="text-sm font-medium mb-2">Project</h4>
@@ -59,11 +95,22 @@ export function ActivityDetailDialog({ activity, open, onOpenChange }: ActivityD
           <div className="border-b pb-4">
             <h4 className="text-sm font-medium mb-2">History</h4>
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <span className="text-sm">Created {activity.time}</span>
-              </div>
-              {/* Add more history items here */}
+              {activity.history ? (
+                activity.history.map((item) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm">{item.action}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({new Date(item.timestamp).toLocaleString()})
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-sm">Created {activity.time}</span>
+                </div>
+              )}
             </div>
           </div>
 
