@@ -565,6 +565,7 @@ export function ActivityPage() {
         open={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
         onStatusChange={toggleActivityCompletion}
+        activities={activities}
       />
     </div>
   )
