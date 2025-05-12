@@ -3,6 +3,7 @@
 import type { JSX } from "react"
 import React, { useState } from "react"
 import { Clock, BarChart2, GitBranch, GitCommit, GitPullRequest, FileText, Zap, Check, CircleDot, Search } from "lucide-react"
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Activity } from "@/types/activity"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +14,172 @@ import { Badge } from "@/components/ui/badge"
 import { NewActivityDialog } from "../dashboard/new-activity-dialog"
 import { ActivityDetailDialog } from "../dashboard/activity-detail-dialog"
 import { toast } from "sonner"
+
+interface ActivityTrendData {
+  date: string
+  total: number
+  completed: number
+}
+
+interface ProjectStats {
+  name: string
+  description: string
+  category: string
+  progress: number
+  activityCount: number
+  completionRate: number
+  recentActivities: number
+}
+
+const calculateActivityTrends = (activities: Activity[]): ActivityTrendData[] => {
+  const now = new Date()
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(now)
+    date.setDate(date.getDate() - i)
+    return date
+  }).reverse()
+
+  return days.map(date => {
+    const dayStr = date.toISOString().split('T')[0]
+    const dayActivities = activities.filter(activity => {
+      if (activity.completedAt && activity.status === "completed") {
+        return activity.completedAt.startsWith(dayStr)
+      }
+      // For activities without completedAt, use the relative time
+      const timeMatch = activity.time.match(/(\d+)\s+(hours?|days?) ago/)
+      if (!timeMatch) return false
+      
+      const [, amount, unit] = timeMatch
+      const activityDate = new Date(now)
+      if (unit.startsWith('hour')) {
+        activityDate.setHours(activityDate.getHours() - parseInt(amount))
+      } else {
+        activityDate.setDate(activityDate.getDate() - parseInt(amount))
+      }
+      return activityDate.toISOString().startsWith(dayStr)
+    })
+
+    return {
+      date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
+      total: dayActivities.length,
+      completed: dayActivities.filter(a => a.status === "completed").length
+    }
+  })
+}
+
+const calculateProjectStats = (activities: Activity[]): ProjectStats[] => {
+  // Group activities by project
+  const projectGroups = activities.reduce((acc, activity) => {
+    if (!acc[activity.project]) {
+      acc[activity.project] = [];
+    }
+    acc[activity.project].push(activity);
+    return acc;
+  }, {} as Record<string, Activity[]>);
+
+  // Calculate stats for each project
+  const projectStats = Object.entries(projectGroups).map(([name, projectActivities]) => {
+    const totalActivities = projectActivities.length;
+    const completedActivities = projectActivities.filter(a => a.status === "completed").length;
+    const recentActivities = projectActivities.filter(a => 
+      a.time.includes("hours ago") || 
+      a.time.includes("Just now") ||
+      (a.time.includes("days ago") && parseInt(a.time) <= 3)
+    ).length;
+
+    // Get the most recent activity for project description and category
+    const latestActivity = projectActivities.sort((a, b) => {
+      if (a.time.includes("Just now")) return -1;
+      if (b.time.includes("Just now")) return 1;
+      return 0;
+    })[0];
+
+    return {
+      name,
+      description: latestActivity.description,
+      category: latestActivity.category,
+      progress: Math.round((completedActivities / totalActivities) * 100),
+      activityCount: totalActivities,
+      completionRate: completedActivities / totalActivities,
+      recentActivities
+    };
+  });
+
+  // Sort projects by a combined score of completion rate, recent activity, and total activities
+  return projectStats.sort((a, b) => {
+    const scoreA = a.completionRate * 0.4 + (a.recentActivities / a.activityCount) * 0.4 + (a.activityCount / Math.max(...projectStats.map(p => p.activityCount))) * 0.2;
+    const scoreB = b.completionRate * 0.4 + (b.recentActivities / b.activityCount) * 0.4 + (b.activityCount / Math.max(...projectStats.map(p => p.activityCount))) * 0.2;
+    return scoreB - scoreA;
+  });
+};
+
+interface ActivityTrendsProps {
+  activities: Activity[]
+}
+
+function ActivityTrends({ activities }: ActivityTrendsProps) {
+  const data = calculateActivityTrends(activities)
+
+  return (
+    <div className="h-64 w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={data}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#ec4899" stopOpacity={0.2}/>
+              <stop offset="95%" stopColor="#ec4899" stopOpacity={0}/>
+            </linearGradient>
+            <linearGradient id="completedGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2}/>
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <XAxis 
+            dataKey="date" 
+            stroke="#6b7280"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis 
+            stroke="#6b7280"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => value.toFixed(0)}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '12px'
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="total"
+            stroke="#ec4899"
+            fill="url(#totalGradient)"
+            strokeWidth={2}
+            name="Total Activities"
+          />
+          <Area
+            type="monotone"
+            dataKey="completed"
+            stroke="#8b5cf6"
+            fill="url(#completedGradient)"
+            strokeWidth={2}
+            name="Completed"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
 
 export function ActivityPage() {
   const [activeTab, setActiveTab] = useState("all")
@@ -235,6 +402,9 @@ export function ActivityPage() {
   // Search placeholder with hints
   const searchPlaceholder = "Search by text or use project:, title:, category: filters..."
 
+  // Calculate project statistics
+  const topProjects = calculateProjectStats(activities);
+
   return (
     <div className="flex-1 overflow-auto px-6 pb-6">
       <div className="flex items-center justify-between mb-6 pt-2">
@@ -344,24 +514,20 @@ export function ActivityPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <ProjectItem
-                name="PulseStack"
-                description="AI-enhanced productivity dashboard"
-                category="Development"
-                progress={75}
-              />
-              <ProjectItem
-                name="Analytics Dashboard"
-                description="Data visualization tool"
-                category="Design"
-                progress={45}
-              />
-              <ProjectItem
-                name="Portfolio Website"
-                description="Personal portfolio site"
-                category="Web Development"
-                progress={90}
-              />
+              {topProjects.slice(0, 3).map((project) => (
+                <ProjectItem
+                  key={project.name}
+                  name={project.name}
+                  description={project.description}
+                  category={project.category}
+                  progress={project.progress}
+                />
+              ))}
+              {topProjects.length === 0 && (
+                <div className="text-center text-muted-foreground py-4">
+                  <p>No projects found</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -372,12 +538,7 @@ export function ActivityPage() {
             <CardDescription>Your activity over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <BarChart2 className="h-10 w-10 mx-auto mb-2" />
-                <p>Activity trend visualization</p>
-              </div>
-            </div>
+            <ActivityTrends activities={activities} />
             <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex items-center gap-1">
