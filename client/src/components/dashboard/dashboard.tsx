@@ -17,7 +17,7 @@ export function Dashboard() {
   return (
     <div className="flex min-h-screen">
       <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 ml-16">
         <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
 
         {selectedView === "overview" && <DashboardContent />}

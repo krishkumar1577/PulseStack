@@ -142,7 +142,7 @@ export function ActivityDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2 mt-2.5">
             <div className="flex items-center gap-2">
               <div className="rounded-full bg-secondary p-2">
                 {icons[activity.type]}
