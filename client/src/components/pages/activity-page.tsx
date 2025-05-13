@@ -4,7 +4,7 @@ import type { JSX } from "react"
 import React, { useState } from "react"
 import { Clock, BarChart2, GitBranch, GitCommit, GitPullRequest, FileText, Zap, Check, CircleDot, Search } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import type { Activity } from "@/types/activity"
+import type { Activity, ActivityComment } from "@/types/activity"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -311,6 +311,59 @@ export function ActivityPage() {
     }));
   };
 
+  const handleActivityUpdate = (activityId: number, updates: Partial<Activity>) => {
+    setActivities(activities.map(activity => {
+      if (activity.id === activityId) {
+        const updatedActivity = {
+          ...activity,
+          ...updates,
+          history: [
+            ...(activity.history || []),
+            {
+              id: (activity.history?.length || 0) + 1,
+              action: "Activity details updated",
+              timestamp: new Date().toISOString(),
+              user: activity.author
+            }
+          ]
+        };
+        toast.success("Activity updated successfully!");
+        return updatedActivity;
+      }
+      return activity;
+    }));
+  };
+
+  const handleCommentAdd = (activityId: number, commentData: Omit<ActivityComment, "id" | "timestamp" | "author">) => {
+    setActivities(activities.map(activity => {
+      if (activity.id === activityId) {
+        const newComment: ActivityComment = {
+          id: (activity.comments?.length || 0) + 1,
+          ...commentData,
+          timestamp: new Date().toISOString(),
+          author: activity.author
+        };
+        
+        const updatedActivity = {
+          ...activity,
+          comments: [...(activity.comments || []), newComment],
+          history: [
+            ...(activity.history || []),
+            {
+              id: (activity.history?.length || 0) + 1,
+              action: "Comment added",
+              timestamp: new Date().toISOString(),
+              user: activity.author
+            }
+          ]
+        };
+        toast.success("Comment added successfully!");
+        return updatedActivity;
+      }
+      return activity;
+    }));
+  };
+
   const handleSearch = (query: string) => {
     setSearchQuery(query)
   }
@@ -565,6 +618,8 @@ export function ActivityPage() {
         open={isDetailDialogOpen}
         onOpenChange={setIsDetailDialogOpen}
         onStatusChange={toggleActivityCompletion}
+        onActivityUpdate={handleActivityUpdate}
+        onCommentAdd={handleCommentAdd}
         activities={activities}
       />
     </div>
