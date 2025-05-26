@@ -1,8 +1,18 @@
 "use client"
 
-import { Search, Bell } from "lucide-react"
+import { Search, Bell, LogOut, Settings, User, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useState } from "react"
 
 interface DashboardHeaderProps {
   selectedView: string
@@ -12,6 +22,33 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ selectedView, setSelectedView }: DashboardHeaderProps) {
   const userName = "krish"
   const greeting = getGreeting()
+  const [showAllNotifications, setShowAllNotifications] = useState(false)
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New Task Assigned",
+      description: "You have been assigned a new task in the PulseStack project",
+      time: "2 min ago",
+      unread: true,
+      type: "task"
+    },
+    {
+      id: 2,
+      title: "Goal Achieved",
+      description: "Congratulations! You've completed your weekly goal",
+      time: "1 hour ago",
+      unread: true,
+      type: "achievement"
+    },
+    {
+      id: 3,
+      title: "Meeting Reminder",
+      description: "Team meeting starting in 15 minutes",
+      time: "10 min ago",
+      unread: false,
+      type: "reminder"
+    }
+  ])
 
   function getGreeting() {
     const hour = new Date().getHours()
@@ -40,6 +77,44 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
         return "Overview"
     }
   }
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(notifications.map(notif => ({ ...notif, unread: false })))
+  }
+
+  const handleNotificationClick = (id: number) => {
+    // Mark the clicked notification as read
+    setNotifications(notifications.map(notif => 
+      notif.id === id ? { ...notif, unread: false } : notif
+    ))
+    
+    // Handle navigation based on notification type
+    const notification = notifications.find(n => n.id === id)
+    if (notification) {
+      switch (notification.type) {
+        case 'task':
+          setSelectedView('activity')
+          break
+        case 'achievement':
+          setSelectedView('goals')
+          break
+        case 'reminder':
+          setSelectedView('calendar')
+          break
+      }
+    }
+  }
+
+  const handleProfileClick = () => {
+    setSelectedView('settings')
+  }
+
+  const handleSettingsClick = () => {
+    setSelectedView('settings')
+  }
+
+  // Function to get unread count
+  const getUnreadCount = () => notifications.filter(n => n.unread).length
 
   return (
     <div className="flex flex-col">
@@ -85,17 +160,79 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
           >
             <Search className="h-5 w-5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full"
-          >
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Avatar className="h-8 w-8 borderborder">
-            <AvatarImage src="/placeholder-user.jpg" alt="User" />
-            <AvatarFallback className="bg-secondary text-foreground">S</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full relative"
+              >
+                <Bell className="h-5 w-5" />
+                {notifications.some(n => n.unread) && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80" align="end" forceMount>
+              <DropdownMenuLabel className="flex items-center justify-between">
+                <span>Notifications</span>
+                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={handleMarkAllAsRead}>
+                  Mark all as read
+                </Button>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {notifications.map((notification) => (
+                <DropdownMenuItem key={notification.id} className="flex flex-col items-start gap-1 p-4" onClick={() => handleNotificationClick(notification.id)}>
+                  <div className="flex w-full items-start gap-2">
+                    <div className={`mt-1 h-2 w-2 rounded-full ${notification.unread ? 'bg-orange-500' : 'bg-transparent'}`} />
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium leading-none">{notification.title}</p>
+                      <p className="text-xs text-muted-foreground">{notification.description}</p>
+                      <p className="text-xs text-muted-foreground">{notification.time}</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="w-full text-center text-sm">
+                View all notifications
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder-user.jpg" alt={userName} />
+                  <AvatarFallback className="bg-secondary text-foreground">{userName[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">user@example.com</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSettingsClick}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

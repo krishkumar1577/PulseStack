@@ -8,6 +8,7 @@ import { ActivityPage } from "@/components/pages/activity-page"
 import { GoalsPage } from "@/components/pages/goals-page"
 import { AIPlannerPage } from "@/components/pages/ai-planner-page"
 import { CalendarPage } from "@/components/pages/calendar-page"
+import { SettingsPage } from "@/components/pages/settings-page"
 import { ChatWidget } from "@/components/dashboard/chat-widget"
 
 export function Dashboard() {
@@ -25,6 +26,7 @@ export function Dashboard() {
         {selectedView === "goals" && <GoalsPage />}
         {selectedView === "ai-planner" && <AIPlannerPage />}
         {selectedView === "calendar" && <CalendarPage />}
+        {selectedView === "settings" && <SettingsPage />}
       </div>
 
       <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
