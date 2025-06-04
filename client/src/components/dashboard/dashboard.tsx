@@ -21,7 +21,7 @@ export function Dashboard() {
       <div className="flex flex-col flex-1 ml-16">
         <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
 
-        {selectedView === "overview" && <DashboardContent />}
+        {selectedView === "overview" && <DashboardContent setSelectedView={setSelectedView} />}
         {selectedView === "activity" && <ActivityPage />}
         {selectedView === "goals" && <GoalsPage />}
         {selectedView === "ai-planner" && <AIPlannerPage />}

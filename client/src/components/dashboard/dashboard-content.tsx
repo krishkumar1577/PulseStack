@@ -17,7 +17,11 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function DashboardContent() {
+interface DashboardContentProps {
+  setSelectedView?: (view: string) => void
+}
+
+export function DashboardContent({ setSelectedView }: DashboardContentProps) {
   return (
     <div className="flex-1 overflow-auto px-6 pb-6">
       {/* Quick Access Widgets */}
@@ -28,6 +32,8 @@ export function DashboardContent() {
           description="Track your progress and activity"
           linkText="View Activity"
           linkHref="/activity"
+          viewName="activity"
+          setSelectedView={setSelectedView}
         />
         <QuickAccessWidget
           icon={<Target className="h-5 w-5 text-purple-500" />}
@@ -35,6 +41,8 @@ export function DashboardContent() {
           description="Monitor your goals and daily habits"
           linkText="View Goals"
           linkHref="/goals"
+          viewName="goals"
+          setSelectedView={setSelectedView}
         />
         <QuickAccessWidget
           icon={<Brain className="h-5 w-5 text-purple-500" />}
@@ -42,6 +50,8 @@ export function DashboardContent() {
           description="Get AI-powered productivity suggestions"
           linkText="Open Planner"
           linkHref="/ai-planner"
+          viewName="ai-planner"
+          setSelectedView={setSelectedView}
         />
         <QuickAccessWidget
           icon={<CalendarIcon className="h-5 w-5 text-purple-500" />}
@@ -49,6 +59,8 @@ export function DashboardContent() {
           description="Manage your schedule and events"
           linkText="View Calendar"
           linkHref="/calendar"
+          viewName="calendar"
+          setSelectedView={setSelectedView}
         />
       </div>
 
@@ -167,7 +179,19 @@ export function DashboardContent() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Upcoming Events</h2>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="hover:bg-primary/10 transition-colors"
+            onClick={() => {
+              if (setSelectedView) {
+                console.log("Navigating to calendar view");
+                setSelectedView("calendar");
+              } else {
+                console.log("setSelectedView is undefined");
+              }
+            }}
+          >
             <CalendarIcon className="h-4 w-4 mr-2" />
             View Calendar
           </Button>
@@ -179,18 +203,21 @@ export function DashboardContent() {
             date="Today, 2:00 PM"
             description="Weekly team sync to discuss project progress"
             participants={4}
+            setSelectedView={setSelectedView}
           />
           <EventCard
             title="Client Presentation"
             date="Tomorrow, 10:00 AM"
             description="Present the new dashboard design to the client"
             participants={6}
+            setSelectedView={setSelectedView}
           />
           <EventCard
             title="Design Review"
             date="Mar 25, 3:30 PM"
             description="Review the latest UI designs with the team"
             participants={3}
+            setSelectedView={setSelectedView}
           />
         </div>
       </div>
@@ -204,14 +231,36 @@ interface QuickAccessWidgetProps {
   description: string
   linkText: string
   linkHref: string
+  viewName?: string
+  setSelectedView?: (view: string) => void
 }
 
-function QuickAccessWidget({ icon, title, description, linkText, linkHref }: QuickAccessWidgetProps) {
+function QuickAccessWidget({ 
+  icon, 
+  title, 
+  description, 
+  linkText, 
+  linkHref, 
+  viewName, 
+  setSelectedView 
+}: QuickAccessWidgetProps) {
+  
+  const handleClick = () => {
+    if (setSelectedView && viewName) {
+      setSelectedView(viewName);
+    }
+  };
+  
   return (
     <Card className="hover:border-primary/20 transition-colors">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="p-2 rounded-lg bg-primary/10">{icon}</div>
-        <Button variant="ghost" size="sm" className="text-primary">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-primary hover:bg-primary/10 transition-colors"
+          onClick={handleClick}
+        >
           {linkText}
         </Button>
       </CardHeader>
@@ -351,11 +400,21 @@ interface EventCardProps {
   date: string
   description: string
   participants: number
+  setSelectedView?: (view: string) => void
 }
 
-function EventCard({ title, date, description, participants }: EventCardProps) {
+function EventCard({ title, date, description, participants, setSelectedView }: EventCardProps) {
+  const handleClick = () => {
+    if (setSelectedView) {
+      setSelectedView("calendar");
+    }
+  };
+
   return (
-    <div className="bg-card rounded-lg p-4 hover:border-primary/20 hover:border transition-colors cursor-pointer">
+    <div 
+      className="bg-card rounded-lg p-4 hover:border-primary/20 hover:border transition-colors cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-lg bg-primary/10 mt-1">
           <CalendarIcon className="h-4 w-4 text-primary" />
