@@ -31,6 +31,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Add these type declarations at the top of the file after imports
 declare global {
@@ -153,6 +154,7 @@ export function CalendarPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [showEventDialog, setShowEventDialog] = useState(false)
 
   const confirmDelete = () => {
     if (eventToDelete) {
@@ -564,7 +566,7 @@ export function CalendarPage() {
     }
 
     setEvents(prev => [...prev, newEventData])
-    
+    setShowEventDialog(false) // <-- Move dialog close here
     // Reset form
     setNewEvent({
       title: '',
@@ -619,6 +621,7 @@ export function CalendarPage() {
 
     setIsEditMode(false)
     setSelectedEvent(null)
+    setShowEventDialog(false) // <-- Move dialog close here
     setNewEvent({
       title: '',
       date: new Date().toISOString().split('T')[0],
@@ -712,7 +715,7 @@ export function CalendarPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Calendar</h2>
         <div className="flex items-center gap-2">
-          <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white">
+          <Button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90 text-white" onClick={() => setShowEventDialog(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Event
           </Button>
@@ -888,152 +891,232 @@ export function CalendarPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{isEditMode ? 'Edit Event' : 'Create Event'}</CardTitle>
+              <CardTitle className="text-lg">Event Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4" onSubmit={isEditMode ? handleUpdateEvent : handleCreateEvent}>
+              {selectedEvent ? (
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Event Title</label>
-                  <input
-                    type="text"
-                    placeholder="Enter event title"
-                    className="w-full px-3 py-2 rounded-md borderborder"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Date</label>
-                    <input 
-                      type="date" 
-                      className="w-full px-3 py-2 rounded-md borderborder"
-                      value={newEvent.date}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
-                      required
-                    />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-lg font-medium">{selectedEvent.title}</div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleEditEvent(selectedEvent)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setEventToDelete(selectedEvent)
+                          setShowDeleteConfirm(true)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Time</label>
-                    <input 
-                      type="time" 
-                      className="w-full px-3 py-2 rounded-md borderborder"
-                      value={newEvent.time}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, time: e.target.value }))}
-                      required
-                    />
+                  <div className="text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      <span>
+                        {selectedEvent.date.toLocaleDateString(undefined, { 
+                          weekday: 'short', 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: selectedEvent.date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span>{selectedEvent.time}</span>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Event Type</label>
-                  <Select value={newEvent.type} onValueChange={(value: Event['type']) => setNewEvent(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select event type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="meeting">Meeting</SelectItem>
-                      <SelectItem value="deadline">Deadline</SelectItem>
-                      <SelectItem value="call">Call</SelectItem>
-                      <SelectItem value="social">Social</SelectItem>
-                      <SelectItem value="task">Task</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Description</label>
-                  <textarea
-                    placeholder="Enter event description"
-                    className="w-full px-3 py-2 rounded-md borderborder h-20 resize-none"
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Participants
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Add participants (comma-separated)"
-                    className="w-full px-3 py-2 rounded-md borderborder"
-                    value={newEvent.participants?.join(', ')}
-                    onChange={(e) => setNewEvent(prev => ({ 
-                      ...prev, 
-                      participants: e.target.value.split(',').map(p => p.trim())
-                    }))}
-                  />
-                </div>
-                
-                {/* Reminder settings section */}
-                {selectedEvent && (
-                  <ReminderSettings event={selectedEvent} />
-                )}
-                
-                <div className="flex gap-2">
-                  {isEditMode && (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => {
-                        setIsEditMode(false)
-                        setSelectedEvent(null)
-                        setNewEvent({
-                          title: '',
-                          date: new Date().toISOString().split('T')[0],
-                          time: '09:00',
-                          type: 'meeting',
-                          description: '',
-                          participants: []
-                        })
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                  {selectedEvent.description && (
+                    <div className="mb-4">
+                      <span className="text-sm font-medium">Description:</span>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedEvent.description}
+                      </p>
+                    </div>
                   )}
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90"
-                  >
-                    {isEditMode ? 'Update Event' : 'Create Event'}
-                  </Button>
+                  {selectedEvent.participants && selectedEvent.participants.length > 0 && (
+                    <div>
+                      <span className="text-sm font-medium">Participants:</span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {selectedEvent.participants.map(participant => (
+                          <span key={participant} className="text-sm bg-secondary/30 rounded-full px-3 py-1">
+                            {participant}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </form>
+              ) : (
+                <div className="text-center text-muted-foreground py-4">
+                  Select an event to see details
+                </div>
+              )}
             </CardContent>
           </Card>
-
-          {/* Delete Confirmation Dialog */}
-          {showDeleteConfirm && eventToDelete && (
-            <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-              <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-                <h3 className="text-lg font-semibold mb-2">Delete Event</h3>
-                <p className="text-muted-foreground mb-4">
-                  Are you sure you want to delete "{eventToDelete.title}"? This action cannot be undone.
-                </p>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowDeleteConfirm(false)
-                      setEventToDelete(null)
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={confirmDelete}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Event creation form dialog */}
+      <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEditMode ? 'Edit Event' : 'Create Event'}</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={isEditMode ? handleUpdateEvent : handleCreateEvent}>
+            {/* Event Title */}
+            <div>
+              <label className="text-sm font-medium mb-1 block">Event Title</label>
+              <input
+                type="text"
+                placeholder="Enter event title"
+                className="w-full px-3 py-2 rounded-md borderborder"
+                value={newEvent.title}
+                onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
+                required
+              />
+            </div>
+            {/* Date and Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Date</label>
+                <input 
+                  type="date" 
+                  className="w-full px-3 py-2 rounded-md borderborder"
+                  value={newEvent.date}
+                  onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Time</label>
+                <input 
+                  type="time" 
+                  className="w-full px-3 py-2 rounded-md borderborder"
+                  value={newEvent.time}
+                  onChange={(e) => setNewEvent(prev => ({ ...prev, time: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            {/* Event Type */}
+            <div>
+              <label className="text-sm font-medium mb-1 block">Event Type</label>
+              <Select value={newEvent.type} onValueChange={(value: Event['type']) => setNewEvent(prev => ({ ...prev, type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select event type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                  <SelectItem value="deadline">Deadline</SelectItem>
+                  <SelectItem value="call">Call</SelectItem>
+                  <SelectItem value="social">Social</SelectItem>
+                  <SelectItem value="task">Task</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Description */}
+            <div>
+              <label className="text-sm font-medium mb-1 block">Description</label>
+              <textarea
+                placeholder="Enter event description"
+                className="w-full px-3 py-2 rounded-md borderborder h-20 resize-none"
+                value={newEvent.description}
+                onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+            {/* Participants */}
+            <div>
+              <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Participants
+              </label>
+              <input
+                type="text"
+                placeholder="Add participants (comma-separated)"
+                className="w-full px-3 py-2 rounded-md borderborder"
+                value={newEvent.participants?.join(', ')}
+                onChange={(e) => setNewEvent(prev => ({ 
+                  ...prev, 
+                  participants: e.target.value.split(',').map(p => p.trim())
+                }))}
+              />
+            </div>
+            {/* Actions */}
+            <div className="flex gap-2">
+              {isEditMode && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setIsEditMode(false)
+                    setSelectedEvent(null)
+                    setNewEvent({
+                      title: '',
+                      date: new Date().toISOString().split('T')[0],
+                      time: '09:00',
+                      type: 'meeting',
+                      description: '',
+                      participants: []
+                    })
+                    setShowEventDialog(false)
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button 
+                type="submit" 
+                className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90"
+                // Removed onClick that closes dialog here
+              >
+                {isEditMode ? 'Update Event' : 'Create Event'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && eventToDelete && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Delete Event</h3>
+            <p className="text-muted-foreground mb-4">
+              Are you sure you want to delete "{eventToDelete.title}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                  setEventToDelete(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
