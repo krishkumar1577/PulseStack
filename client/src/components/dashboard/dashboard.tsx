@@ -10,26 +10,29 @@ import { AIPlannerPage } from "@/components/pages/ai-planner-page"
 import { CalendarPage } from "@/components/pages/calendar-page"
 import { SettingsPage } from "@/components/pages/settings-page"
 import { ChatWidget } from "@/components/dashboard/chat-widget"
+import { ActivityProvider } from "@/contexts/activity-context"
 
 export function Dashboard() {
   const [selectedView, setSelectedView] = useState<string>("overview")
   const [chatOpen, setChatOpen] = useState<boolean>(false)
 
   return (
-    <div className="flex min-h-screen">
-      <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
-      <div className="flex flex-col flex-1 ml-16">
-        <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
+    <ActivityProvider>
+      <div className="flex min-h-screen">
+        <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
+        <div className="flex flex-col flex-1 ml-16">
+          <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
 
-        {selectedView === "overview" && <DashboardContent setSelectedView={setSelectedView} />}
-        {selectedView === "activity" && <ActivityPage />}
-        {selectedView === "goals" && <GoalsPage />}
-        {selectedView === "ai-planner" && <AIPlannerPage />}
-        {selectedView === "calendar" && <CalendarPage />}
-        {selectedView === "settings" && <SettingsPage />}
+          {selectedView === "overview" && <DashboardContent setSelectedView={setSelectedView} />}
+          {selectedView === "activity" && <ActivityPage />}
+          {selectedView === "goals" && <GoalsPage />}
+          {selectedView === "ai-planner" && <AIPlannerPage />}
+          {selectedView === "calendar" && <CalendarPage />}
+          {selectedView === "settings" && <SettingsPage />}
+        </div>
+
+        <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
       </div>
-
-      <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
-    </div>
+    </ActivityProvider>
   )
 }

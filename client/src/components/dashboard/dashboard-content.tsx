@@ -16,12 +16,56 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { NewActivityDialog } from "@/components/dashboard/new-activity-dialog"
+import { useActivityContext } from "@/contexts/activity-context"
 
 interface DashboardContentProps {
   setSelectedView?: (view: string) => void
 }
 
 export function DashboardContent({ setSelectedView }: DashboardContentProps) {
+  const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false)
+  const [boardView, setBoardView] = useState(false)
+  const { activities, addActivity } = useActivityContext()
+
+  // Group activities by status for the kanban columns
+  const taskColumns = [
+    {
+      title: "Not Started",
+      accentColor: undefined,
+      tasks: activities.filter(a => a.type === "task" && (!a.status || a.status === "pending")),
+    },
+    {
+      title: "In Progress",
+      accentColor: "#9333ea",
+      tasks: activities.filter(a => a.type === "task" && a.status === "in-progress"),
+    },
+    {
+      title: "Under Review",
+      accentColor: "#8b5cf6",
+      tasks: [], // You can add logic for this if you have such a status
+    },
+    {
+      title: "Completed",
+      accentColor: "#22c55e",
+      tasks: activities.filter(a => a.type === "task" && a.status === "completed"),
+    },
+  ]
+
+  // Placeholder: handle new task submission (should update task board data in real app)
+  const handleNewTask = (data: any) => {
+    addActivity({
+      ...data,
+      time: "Just now",
+      status: "in-progress",
+      author: {
+        name: "krish",
+        avatar: "/placeholder-user.jpg",
+      },
+    })
+  }
+
   return (
     <div className="flex-1 overflow-auto px-6 pb-6">
       {/* Quick Access Widgets */}
@@ -93,7 +137,7 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Tasks</h2>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setBoardView(v => !v)}>
               <FileText className="h-4 w-4 mr-2" />
               Board View
             </Button>
@@ -101,78 +145,64 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
               variant="default"
               size="sm"
               className="bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90"
+              onClick={() => setIsNewTaskDialogOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
               New Task
             </Button>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <TaskColumn
-            title="Not Started"
-            count={3}
-            tasks={[
-              {
-                title: "PulseStack Website and App",
-                type: "Design",
-                priority: "low",
-                progress: 0,
-                dueDate: "March 30, 2025",
-                assignees: 3,
-                comments: 7,
-              },
-            ]}
-          />
-          <TaskColumn
-            title="In Progress"
-            count={4}
-            accentColor="#9333ea"
-            tasks={[
-              {
-                title: "API Integration",
-                type: "Development",
-                priority: "high",
-                progress: 20,
-                dueDate: "March 29, 2025",
-                assignees: 3,
-                comments: 7,
-              },
-            ]}
-          />
-          <TaskColumn
-            title="Under Review"
-            count={3}
-            accentColor="#8b5cf6"
-            tasks={[
-              {
-                title: "Dashboard Development",
-                type: "Development",
-                priority: "low",
-                progress: 100,
-                dueDate: "March 21, 2025",
-                assignees: 3,
-                comments: 7,
-              },
-            ]}
-          />
-          <TaskColumn
-            title="Completed"
-            count={5}
-            accentColor="#22c55e"
-            tasks={[
-              {
-                title: "Update Design System",
-                type: "Design",
-                priority: "medium",
-                progress: 100,
-                dueDate: "March 16, 2025",
-                assignees: 3,
-                comments: 7,
-              },
-            ]}
-          />
-        </div>
+        {boardView ? (
+          // Kanban (Board) View
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {taskColumns.map(col => (
+              <TaskColumn
+                key={col.title}
+                title={col.title}
+                count={col.tasks.length}
+                accentColor={col.accentColor}
+                tasks={col.tasks.map(task => ({
+                  title: task.title,
+                  type: task.category || task.type,
+                  priority: (task.priority as "low" | "medium" | "high") ?? "medium",
+                  progress: task.status === "completed" ? 100 : 0,
+                  dueDate: task.dueDate ?? "",
+                  assignees: Array.isArray(task.assignees)
+                    ? task.assignees.length
+                    : (typeof task.assignees === "number" ? task.assignees : 1),
+                  comments: Array.isArray(task.comments)
+                    ? task.comments.length
+                    : (typeof task.comments === "number" ? task.comments : 0),
+                  accentColor: col.accentColor,
+                }))}
+              />
+            ))}
+          </div>
+        ) : (
+          // Simple Card View (all tasks, not grouped)
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {activities.filter(a => a.type === "task").map((task, idx) => (
+              <Task key={task.id || idx} {...{
+                title: task.title,
+                type: task.category || task.type,
+                priority: (task.priority as "low" | "medium" | "high") ?? "medium",
+                progress: task.status === "completed" ? 100 : 0,
+                dueDate: task.dueDate ?? "",
+                assignees: Array.isArray(task.assignees)
+                  ? task.assignees.length
+                  : (typeof task.assignees === "number" ? task.assignees : 1),
+                comments: Array.isArray(task.comments)
+                  ? task.comments.length
+                  : (typeof task.comments === "number" ? task.comments : 0),
+              }} />
+            ))}
+          </div>
+        )}
+        <NewActivityDialog
+          open={isNewTaskDialogOpen}
+          onOpenChange={setIsNewTaskDialogOpen}
+          onSubmit={handleNewTask}
+        />
       </div>
 
       {/* Upcoming Events */}
