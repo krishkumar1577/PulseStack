@@ -11,6 +11,7 @@ import { CalendarPage } from "@/components/pages/calendar-page"
 import { SettingsPage } from "@/components/pages/settings-page"
 import { ChatWidget } from "@/components/dashboard/chat-widget"
 import { ActivityProvider } from "@/contexts/activity-context"
+import { EventProvider } from "@/contexts/event-context"
 
 export function Dashboard() {
   const [selectedView, setSelectedView] = useState<string>("overview")
@@ -18,21 +19,23 @@ export function Dashboard() {
 
   return (
     <ActivityProvider>
-      <div className="flex min-h-screen">
-        <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
-        <div className="flex flex-col flex-1 ml-16">
-          <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
+      <EventProvider>
+        <div className="flex min-h-screen">
+          <DashboardSidebar selectedView={selectedView} setSelectedView={setSelectedView} />
+          <div className="flex flex-col flex-1 ml-16">
+            <DashboardHeader selectedView={selectedView} setSelectedView={setSelectedView} />
 
-          {selectedView === "overview" && <DashboardContent setSelectedView={setSelectedView} />}
-          {selectedView === "activity" && <ActivityPage />}
-          {selectedView === "goals" && <GoalsPage />}
-          {selectedView === "ai-planner" && <AIPlannerPage />}
-          {selectedView === "calendar" && <CalendarPage />}
-          {selectedView === "settings" && <SettingsPage />}
+            {selectedView === "overview" && <DashboardContent setSelectedView={setSelectedView} />}
+            {selectedView === "activity" && <ActivityPage />}
+            {selectedView === "goals" && <GoalsPage />}
+            {selectedView === "ai-planner" && <AIPlannerPage />}
+            {selectedView === "calendar" && <CalendarPage />}
+            {selectedView === "settings" && <SettingsPage />}
+          </div>
+
+          <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
         </div>
-
-        <ChatWidget isOpen={chatOpen} setIsOpen={setChatOpen} />
-      </div>
+      </EventProvider>
     </ActivityProvider>
   )
 }

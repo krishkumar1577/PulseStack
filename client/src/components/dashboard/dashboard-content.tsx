@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useState } from "react"
 import { NewActivityDialog } from "@/components/dashboard/new-activity-dialog"
 import { useActivityContext } from "@/contexts/activity-context"
+import { useEventContext } from "@/contexts/event-context"
 
 interface DashboardContentProps {
   setSelectedView?: (view: string) => void
@@ -28,6 +29,7 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false)
   const [boardView, setBoardView] = useState(false)
   const { activities, addActivity } = useActivityContext()
+  const { events } = useEventContext()
 
   // Group activities by status for the kanban columns
   const taskColumns = [
@@ -64,6 +66,27 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
         avatar: "/placeholder-user.jpg",
       },
     })
+  }
+
+  // Helper: Get upcoming events (today or future, sorted)
+  const getUpcomingEvents = () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return events
+      .filter(event => {
+        const eventDate = new Date(event.date)
+        eventDate.setHours(0, 0, 0, 0)
+        return eventDate >= today
+      })
+      .sort((a, b) => {
+        const dateCompare = new Date(a.date).getTime() - new Date(b.date).getTime()
+        if (dateCompare !== 0) return dateCompare
+        // If same date, compare by time
+        const timeA = new Date(`1970/01/01 ${a.time}`).getTime()
+        const timeB = new Date(`1970/01/01 ${b.time}`).getTime()
+        return timeA - timeB
+      })
+      .slice(0, 3)
   }
 
   return (
@@ -215,10 +238,7 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
             className="hover:bg-primary/10 transition-colors"
             onClick={() => {
               if (setSelectedView) {
-                console.log("Navigating to calendar view");
-                setSelectedView("calendar");
-              } else {
-                console.log("setSelectedView is undefined");
+                setSelectedView("calendar")
               }
             }}
           >
@@ -226,29 +246,21 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
             View Calendar
           </Button>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <EventCard
-            title="Team Meeting"
-            date="Today, 2:00 PM"
-            description="Weekly team sync to discuss project progress"
-            participants={4}
-            setSelectedView={setSelectedView}
-          />
-          <EventCard
-            title="Client Presentation"
-            date="Tomorrow, 10:00 AM"
-            description="Present the new dashboard design to the client"
-            participants={6}
-            setSelectedView={setSelectedView}
-          />
-          <EventCard
-            title="Design Review"
-            date="Mar 25, 3:30 PM"
-            description="Review the latest UI designs with the team"
-            participants={3}
-            setSelectedView={setSelectedView}
-          />
+          {getUpcomingEvents().length === 0 ? (
+            <div className="text-muted-foreground col-span-3 text-center py-8">No upcoming events</div>
+          ) : (
+            getUpcomingEvents().map(event => (
+              <EventCard
+                key={event.id}
+                title={event.title}
+                date={`${event.date instanceof Date ? event.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : event.date} ${event.time}`}
+                description={event.description || ''}
+                participants={event.participants?.length || 0}
+                setSelectedView={setSelectedView}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

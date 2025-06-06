@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { EventProvider, useEventContext } from "@/contexts/event-context"
 
 // Add these type declarations at the top of the file after imports
 declare global {
@@ -119,27 +120,12 @@ interface UserCalendarSettings {
 }
 
 export function CalendarPage() {
+  // Use shared event context
+  const { events, setEvents, addEvent, updateEvent, deleteEvent } = useEventContext()
+
   const [viewMode, setViewMode] = useState("month")
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: 1,
-      title: "Team Meeting",
-      date: new Date(currentYear, currentMonth, 10),
-      time: "10:00 AM",
-      type: "meeting",
-      reminders: [
-        { id: 1, time: 30, type: "notification", sent: false },
-        { id: 2, time: 60, type: "email", sent: false }
-      ]
-    },
-    { id: 2, title: "Project Deadline", date: new Date(currentYear, currentMonth, 15), time: "11:30 AM", type: "deadline" },
-    { id: 3, title: "Client Call", date: new Date(currentYear, currentMonth, 5), time: "2:00 PM", type: "call" },
-    { id: 4, title: "Design Review", date: new Date(currentYear, currentMonth, 18), time: "3:30 PM", type: "meeting" },
-    { id: 5, title: "Team Lunch", date: new Date(currentYear, currentMonth, 22), time: "12:30 PM", type: "social" },
-    { id: 6, title: "Weekly Report", date: new Date(currentYear, currentMonth, 10), time: "4:00 PM", type: "task" },
-  ])
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] = useState(false)
