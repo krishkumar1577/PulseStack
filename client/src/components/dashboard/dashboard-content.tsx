@@ -20,6 +20,7 @@ import { useState } from "react"
 import { NewActivityDialog } from "@/components/dashboard/new-activity-dialog"
 import { useActivityContext } from "@/contexts/activity-context"
 import { useEventContext } from "@/contexts/event-context"
+import { useFolderContext } from "@/contexts/folder-context"
 
 interface DashboardContentProps {
   setSelectedView?: (view: string) => void
@@ -30,6 +31,7 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
   const [boardView, setBoardView] = useState(false)
   const { activities, addActivity } = useActivityContext()
   const { events } = useEventContext()
+  const { folders } = useFolderContext()
 
   // Group activities by status for the kanban columns
   const taskColumns = [
@@ -141,11 +143,9 @@ export function DashboardContent({ setSelectedView }: DashboardContentProps) {
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <FolderCard count={54} title="My Portfolio" />
-          <FolderCard count={87} title="Client Projects" />
-          <FolderCard count={145} title="Website Resources" />
-          <FolderCard count={102} title="Creative Assets" />
-          <FolderCard count={36} title="Product Designs" />
+          {folders.map(folder => (
+            <FolderCard key={folder.id} count={folder.fileCount} title={folder.name} icon={folder.icon} />
+          ))}
           <div className="bg-card rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-secondary/70 transition-colors h-[104px]">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Plus className="h-5 w-5" />

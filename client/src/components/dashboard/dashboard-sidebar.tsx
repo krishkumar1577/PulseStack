@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useFolderContext } from "@/contexts/folder-context"
 
 interface DashboardSidebarProps {
   selectedView: string
@@ -14,6 +15,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ selectedView, setSelectedView }: DashboardSidebarProps) {
   const { theme, setTheme } = useTheme()
+  const { folders } = useFolderContext();
   const router = useRouter()
   const pathname = usePathname()
 
@@ -120,6 +122,22 @@ export function DashboardSidebar({ selectedView, setSelectedView }: DashboardSid
           tooltip="Files"
         />
       </div>
+
+      {/* Folder Bar Section
+      <div className="flex flex-col items-center gap-2 mt-8 px-2 w-full">
+        <div className="text-xs text-muted-foreground mb-2">Folders</div>
+        {folders.map(folder => (
+          <Button
+            key={folder.id}
+            variant="ghost"
+            size="icon"
+            className="w-full flex items-center justify-center mb-1"
+            title={folder.name}
+          >
+            {folder.icon || <Folder className="h-5 w-5 text-muted-foreground" />}
+          </Button>
+        ))}
+      </div> */}
 
       <div className="mt-auto flex flex-col items-center gap-6 mb-8">
         <SidebarIcon
