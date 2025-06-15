@@ -21,6 +21,7 @@ import { NewActivityDialog } from "@/components/dashboard/new-activity-dialog"
 import { useActivityContext } from "@/contexts/activity-context"
 import { useEventContext } from "@/contexts/event-context"
 import { useFolderContext } from "@/contexts/folder-context"
+import { FolderCard } from "@/components/ui/folder-card"
 
 interface DashboardContentProps {
   setSelectedView?: (view: string) => void
@@ -311,31 +312,6 @@ function QuickAccessWidget({
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
-  )
-}
-
-interface FolderCardProps {
-  count: number
-  title: string
-  icon?: React.ReactNode
-}
-
-function FolderCard({ count, title, icon }: FolderCardProps) {
-  return (
-    <div className="bg-card rounded-lg p-4 flex flex-col h-[104px] hover:border-primary/20 hover:border transition-colors cursor-pointer">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
-          {icon || <FileText className="h-4 w-4 text-muted-foreground" />}
-        </div>
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </div>
-      <div className="mt-auto">
-        <div className="text-foreground font-medium text-sm">{title}</div>
-        <div className="text-xs text-muted-foreground">{count} Files</div>
-      </div>
-    </div>
   )
 }
 
