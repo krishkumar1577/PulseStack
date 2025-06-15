@@ -1,5 +1,6 @@
 "use client"
 
+import { useFileContext } from "@/contexts/file-context"
 import { useFolderContext } from "@/contexts/folder-context"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
@@ -9,13 +10,37 @@ import { FileDropzone } from "@/components/ui/file-dropzone"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 export default function FilesPage() {
-  const { folders } = useFolderContext()
+  const { folders, updateFolder } = useFolderContext()
+  const { files, addFile } = useFileContext()
   const [uploadOpen, setUploadOpen] = useState(false)
   const [activeFolder, setActiveFolder] = useState(null)
   const [folderDialogOpen, setFolderDialogOpen] = useState(false)
 
+  // Add File button handler
+  const handleAddFile = () => {
+    setUploadOpen(true)
+  }
+  // Rename Folder button handler
+  const handleRenameFolder = () => {
+    if (!activeFolder) return
+    const newName = window.prompt("Enter new folder name:", activeFolder.name)
+    if (newName && newName.trim() && newName !== activeFolder.name) {
+      updateFolder(activeFolder.id, { name: newName.trim() })
+      setActiveFolder({ ...activeFolder, name: newName.trim() })
+    }
+  }
+
   // Placeholder upload modal content
-  const handleFiles = (files: FileList) => {
+  const handleFiles = (filesList: FileList) => {
+    if (activeFolder) {
+      Array.from(filesList).forEach(file => {
+        addFile({
+          name: file.name,
+          folderId: activeFolder.id,
+          type: file.type || 'file',
+        })
+      })
+    }
     setUploadOpen(false)
   }
  
@@ -40,31 +65,22 @@ export default function FilesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b">
-                    <td className="px-4 py-2">ProjectPlan.pdf</td>
-                    <td className="px-4 py-2">PDF</td>
-                    <td className="px-4 py-2">1.2 MB</td>
-                    <td className="px-4 py-2">2025-06-10</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2">Design.sketch</td>
-                    <td className="px-4 py-2">Sketch</td>
-                    <td className="px-4 py-2">3.8 MB</td>
-                    <td className="px-4 py-2">2025-06-09</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2">Notes.txt</td>
-                    <td className="px-4 py-2">Text</td>
-                    <td className="px-4 py-2">8 KB</td>
-                    <td className="px-4 py-2">2025-06-08</td>
-                  </tr>
+                  {/* Show files for this folder */}
+                  {files.filter(f => f.folderId === activeFolder.id).map(file => (
+                    <tr key={file.id} className="border-b">
+                      <td className="px-4 py-2">{file.name}</td>
+                      <td className="px-4 py-2">{file.type}</td>
+                      <td className="px-4 py-2">-</td>
+                      <td className="px-4 py-2">-</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
             {/* Actions */}
             <div className="flex flex-wrap gap-4 justify-center mt-6">
-              <Button variant="outline" size="sm">Add File</Button>
-              <Button variant="outline" size="sm">Rename Folder</Button>
+              <Button variant="outline" size="sm" onClick={handleAddFile}>Add File</Button>
+              <Button variant="outline" size="sm" onClick={handleRenameFolder}>Rename Folder</Button>
               <Button variant="secondary" size="sm">Open Canvas</Button>
             </div>
           </div>
