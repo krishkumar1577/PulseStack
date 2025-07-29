@@ -167,6 +167,11 @@ body {
   border-radius: 3px;
 }
 
+/* Custom gradient for Whop-inspired design */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
 /* Attachment preview styles */
 .attachment-preview {
   max-width: 200px;

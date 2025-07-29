@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useState } from "react"
+import { useAuth } from "@/contexts/auth-context"
+import { toast } from "sonner"
 
 interface DashboardHeaderProps {
   selectedView: string
@@ -20,7 +22,9 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ selectedView, setSelectedView }: DashboardHeaderProps) {
-  const userName = "krish"
+  const { user, logout } = useAuth()
+  const userName = user?.username || "User"
+  const userEmail = user?.email || "user@example.com"
   const greeting = getGreeting()
   const [showAllNotifications, setShowAllNotifications] = useState(false)
   const [notifications, setNotifications] = useState([
@@ -111,6 +115,11 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
 
   const handleSettingsClick = () => {
     setSelectedView('settings')
+  }
+
+  const handleLogout = () => {
+    logout()
+    toast.success('Logged out successfully')
   }
 
   // Function to get unread count
@@ -212,7 +221,7 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{userName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">user@example.com</p>
+                  <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -227,7 +236,7 @@ export function DashboardHeader({ selectedView, setSelectedView }: DashboardHead
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
