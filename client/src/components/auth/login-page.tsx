@@ -33,38 +33,48 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-black border border-gray-800 rounded-lg overflow-hidden">
-      <div className="relative flex size-full items-center justify-center gap-20 overflow-hidden p-4 lg:gap-[220px]">
+    <main className="h-screen bg-black border border-gray-800 rounded-lg overflow-hidden">
+      <div className="relative flex h-full w-full items-center justify-center gap-20 overflow-hidden p-4 lg:gap-[220px]">
         {/* Background Pattern */}
         <div className="absolute top-0 left-0 size-full">
-          {/* Background SVG pattern - placeholder for now */}
-          <div className="size-full bg-gradient-to-br from-gray-900 via-gray-800 to-black opacity-60" />
-          {/* You can replace this with your actual background SVG */}
+          {/* Space background image */}
+          <img 
+            src="/liquid.jpg" 
+            alt="Space background" 
+            className="size-full object-cover opacity-80"
+          />
+          {/* Dark overlay for better text readability */}
+          {/* <div className="absolute inset-0 bg-black opacity-50" /> */}
         </div>
         
         {/* Radial gradient overlay */}
-        <div className="absolute top-0 left-0 size-full bg-gradient-radial from-black from-70% to-transparent" />
+        {/* <div className="absolute top-0 left-0 size-full bg-gradient-radial from-black from-70% to-transparent" /> */}
         
-        {/* Left Side - Illustration */}
+        {/* Left Side - Tagline only (SVG commented out) */}
         <div className="z-10 hidden flex-col items-center gap-6 md:flex">
-          {/* Placeholder for your city illustration */}
-          <div className="w-[250px] lg:w-[380px] h-[300px] lg:h-[357px] border-2 border-dashed border-gray-600 rounded-lg flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl flex items-center justify-center">
-                <span className="text-2xl font-bold text-white">PS</span>
-              </div>
-              <p className="text-sm">Your city illustration will go here</p>
-            </div>
+          {/* City illustration using custom SVG */}
+          {/**
+          <div className="w-[250px] lg:w-[380px] h-[300px] lg:h-[357px] flex items-center justify-center">
+            <img 
+              src="/pdity-no-bg.svg" 
+              alt="PulseStack Illustration" 
+              className="w-full h-full object-contain opacity-90"
+              style={{
+                filter: 'brightness(1.1) contrast(1.05)',
+                mixBlendMode: 'normal'
+              }}
+            />
           </div>
-          
+          */}
           {/* Main tagline */}
           <h1 className="text-4xl lg:text-5xl font-bold text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent font-[system-ui]">
-            The productivity app
+            PulseStack
           </h1>
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="bg-gray-900 border border-gray-700 z-10 flex w-full max-w-sm min-w-fit flex-col gap-4 rounded-3xl px-6 pt-10 pb-8">
+        <div className="h-full w-full bg-white-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 border border-gray-500
+ z-10 flex w-full max-w-sm min-w-fit flex-col gap-4 rounded-3xl px-6 pt-10 pb-8">
           {/* Whop Logo equivalent - PulseStack logo */}
           <div className="self-center mb-5">
             <div className="flex items-center justify-center">
@@ -76,7 +86,7 @@ export const LoginPage: React.FC = () => {
           </div>
           
           {/* Description */}
-          <span className="text-gray-400 mb-5 max-w-[340px] self-center text-center text-sm">
+          <span className="text-white-400 mb-5 max-w-[340px] self-center text-center text-sm">
             Create an account or log in to discover productivity and find ways to boost your workflow.
           </span>
 
@@ -84,7 +94,7 @@ export const LoginPage: React.FC = () => {
           <div className="flex w-full flex-col items-center justify-center">
             <form onSubmit={handleSubmit} className="flex w-full flex-col items-center justify-center gap-3">
               {/* Email/Username Field */}
-              <label className="text-gray-400 w-full text-sm">
+              <label className="text-white-400 w-full text-sm">
                 Username
                 <div className="mt-1.5 h-12 w-full">
                   <input
@@ -95,13 +105,13 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     spellCheck="false"
-                    className="h-12 w-full rounded-xl bg-gray-800 border border-gray-600 text-white placeholder:text-gray-500 px-3 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    className="h-12 w-full rounded-xl bg-gray-800 border border-gray-600 text-white placeholder:text-orange-500 px-3 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                   />
                 </div>
               </label>
 
               {/* Password Field */}
-              <label className="text-gray-400 w-full text-sm">
+              <label className="text-white-400 w-full text-sm">
                 Password
                 <div className="mt-1.5 h-12 w-full relative">
                   <input
@@ -112,7 +122,7 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     spellCheck="false"
-                    className="h-12 w-full rounded-xl bg-gray-800 border border-gray-600 text-white placeholder:text-gray-500 px-3 pr-10 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    className="h-12 w-full rounded-xl bg-gray-800 border border-gray-600 text-white placeholder:text-orange-500 px-3 pr-10 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                   />
                   <button
                     type="button"
@@ -120,9 +130,9 @@ export const LoginPage: React.FC = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-300" />
+                      <EyeOff className="h-5 w-5 text-white-400 hover:text-gray-300" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-300" />
+                      <Eye className="h-5 w-5 text-white-400 hover:text-gray-300" />
                     )}
                   </button>
                 </div>
@@ -163,7 +173,7 @@ export const LoginPage: React.FC = () => {
             {/* Divider */}
             <div className="my-6 flex w-full items-center gap-3">
               <div className="bg-gray-600 h-px flex-1"></div>
-              <span className="text-gray-400 flex-shrink-0 uppercase text-xs">OR</span>
+              <span className="text-white-400 flex-shrink-0 uppercase text-xs">OR</span>
               <div className="bg-gray-600 h-px flex-1"></div>
             </div>
 
@@ -201,7 +211,7 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Terms */}
-            <span className="text-gray-500 mt-4 max-w-72 text-center text-balance text-xs">
+            <span className="text-white-500 mt-4 max-w-72 text-center text-balance text-xs">
               By signing in you agree to our{' '}
               <a href="#" className="text-blue-400 hover:text-blue-300 underline">
                 terms of service
