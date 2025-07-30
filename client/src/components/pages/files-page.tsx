@@ -1,7 +1,7 @@
 "use client"
 
 import { useFileContext } from "@/contexts/file-context"
-import { useFolderContext } from "@/contexts/folder-context"
+import { useFolderContext, type Folder } from "@/contexts/folder-context"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { FolderCard } from "@/components/ui/folder-card"
@@ -13,7 +13,7 @@ export default function FilesPage() {
   const { folders, updateFolder } = useFolderContext()
   const { files, addFile } = useFileContext()
   const [uploadOpen, setUploadOpen] = useState(false)
-  const [activeFolder, setActiveFolder] = useState(null)
+  const [activeFolder, setActiveFolder] = useState<Folder | null>(null)
   const [folderDialogOpen, setFolderDialogOpen] = useState(false)
 
   // Add File button handler
