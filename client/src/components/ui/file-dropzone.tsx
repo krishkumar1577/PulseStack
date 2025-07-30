@@ -57,8 +57,7 @@ export function FileDropzone({ onFiles }: FileDropzoneProps) {
         multiple
         className="hidden"
         onChange={handleChange}
-        webkitdirectory="true"
-        directory="true"
+        {...({ webkitdirectory: "true" } as any)}
       />
     </div>
   )
