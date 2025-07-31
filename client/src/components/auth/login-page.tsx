@@ -73,7 +73,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="h-full w-full bg-white-500 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 border border-gray-500
+        <div className="h-full w-full bg-white-500 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-20 border border-gray-500
  z-10 flex w-full max-w-sm min-w-fit flex-col gap-4 rounded-3xl px-6 pt-10 pb-8">
           {/* Whop Logo equivalent - PulseStack logo */}
           <div className="self-center mb-5">
